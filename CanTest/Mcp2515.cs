@@ -40,6 +40,15 @@ namespace CanTest
         private byte rEGISTER_TXB0D6 = 0x3C;
         private byte rEGISTER_TXB0D7 = 0x3D;
 
+        private byte rEGISTER_RXB0D0 = 0x66;
+        private byte rEGISTER_RXB0D1 = 0x67;
+        private byte rEGISTER_RXB0D2 = 0x68;
+        private byte rEGISTER_RXB0D3 = 0x69;
+        private byte rEGISTER_RXB0D4 = 0x6A;
+        private byte rEGISTER_RXB0D5 = 0x6B;
+        private byte rEGISTER_RXB0D6 = 0x6C;
+        private byte rEGISTER_RXB0D7 = 0x6D;
+
         // SPI INSTRUCTIONS
         private byte sPI_INSTRUCTION_RESET = 0xC0;
         private byte sPI_INSTRUCTION_READ = 0x03;
@@ -64,13 +73,7 @@ namespace CanTest
         private rEGISTER_TXB0SIDH_VALUE register_txb0sidh_value;
         private rEGISTER_TXB0DLC_VALUE register_txb0dlc_value;
         private byte[] rEGISTER_TXB0Dx = new byte[8];
-
-        // DATA FOR RECEIVER
-        private cONTROL_REGISTER_CANINTE_VALUE_RECEIVER control_register_caninte_value_receiver;
-        private cONTROL_REGISTER_RXB0CTRL_VALUE_RECEIVER control_register_rxb0cntrl_value_receiver;
-
-        // DATA FOR SENDER
-        private cONTROL_REGISTER_CANINTE_VALUE_SENDER control_register_caninte_value_sender;
+        private byte[] rEGISTER_RXB0Dx = new byte[8];
 
         public struct cONTROL_REGISTER_CANSTAT_VALUE
         {
@@ -131,25 +134,14 @@ namespace CanTest
             public byte CNF3;
         }
 
-        public struct cONTROL_REGISTER_CANINTE_VALUE_SENDER
-        {
-            public byte INTE;                                                       
-        }
 
-        public struct cONTROL_REGISTER_CANINTE_VALUE_RECEIVER
-        {
-            public byte INTE;
-        }
 
-        public struct cONTROL_REGISTER_RXB0CTRL_VALUE_SENDER
+        public struct cONTROL_REGISTER_TXB0CTRL_VALUE
         {
             public byte TXB0CTRL;
         }
 
-        public struct cONTROL_REGISTER_RXB0CTRL_VALUE_RECEIVER
-        {
-            public byte RXB0CTRL;
-        }
+
 
         public MCP2515()
         {
@@ -165,13 +157,6 @@ namespace CanTest
             control_register_cnfx_value.CNF1 = 0x03; // Baud rate prescaler calculated with application (Fosc = 8Mhz and CANspeed = 125kHz)
             control_register_cnfx_value.CNF2 = 0xB8; // BTLMODE = 1 (PHaseSegment 2 is configured with CNF 3) and PhaseSegment 1 = 8xTQ (7+1)
             control_register_cnfx_value.CNF3 = 0x05; // Set PhaseSegment 2 = 6xTQ (5+1)
-
-            // Set values for interrupts on int pin 
-            control_register_caninte_value_sender.INTE = 0x00; // Enable interrupt when rx buffer 0 full
-            control_register_caninte_value_receiver.INTE = 0x01; // Enable interrupt when tx buffer 0 full
-
-            // Set values for mask and filter on buffer 0
-            control_register_rxb0cntrl_value_receiver.RXB0CTRL = 0x60; // Disbale mask and filter on buffer 0 rx
         }
 
         private void configureGlobalData()
@@ -199,9 +184,9 @@ namespace CanTest
             register_txb0sidh_value.identifier_Z = 0x03;
 
             // Set values for message size
-            register_txb0dlc_value.messageSize_X = 0x04;
-            register_txb0dlc_value.messageSize_Y = 0x04;
-            register_txb0dlc_value.messageSize_Z = 0x04;
+            register_txb0dlc_value.messageSize_X = 0x01;
+            register_txb0dlc_value.messageSize_Y = 0x01;
+            register_txb0dlc_value.messageSize_Z = 0x01;
 
             // Set addresss for tx buffer 0
             rEGISTER_TXB0Dx[0] = rEGISTER_TXB0D0;
@@ -212,6 +197,16 @@ namespace CanTest
             rEGISTER_TXB0Dx[5] = rEGISTER_TXB0D5;
             rEGISTER_TXB0Dx[6] = rEGISTER_TXB0D6;
             rEGISTER_TXB0Dx[7] = rEGISTER_TXB0D7;
+
+            // Set addresss for rx buffer 0
+            rEGISTER_RXB0Dx[0] = rEGISTER_RXB0D0;
+            rEGISTER_RXB0Dx[1] = rEGISTER_RXB0D1;
+            rEGISTER_RXB0Dx[2] = rEGISTER_RXB0D2;
+            rEGISTER_RXB0Dx[3] = rEGISTER_RXB0D3;
+            rEGISTER_RXB0Dx[4] = rEGISTER_RXB0D4;
+            rEGISTER_RXB0Dx[5] = rEGISTER_RXB0D5;
+            rEGISTER_RXB0Dx[6] = rEGISTER_RXB0D6;
+            rEGISTER_RXB0Dx[7] = rEGISTER_RXB0D7;
 
             // Set data for interrupt flags
             control_register_canintf_value.RESET_ALL_IF = 0x00;
@@ -542,44 +537,9 @@ namespace CanTest
             }
         }
 
-        public cONTROL_REGISTER_CANINTE_VALUE_SENDER CONTROL_REGISTER_CANINTE_VALUE_SENDER
-        {
-            get
-            {
-                return control_register_caninte_value_sender;
-            }
 
-            set
-            {
-                control_register_caninte_value_sender = value;
-            }
-        }
 
-        public cONTROL_REGISTER_CANINTE_VALUE_RECEIVER CONTROL_REGISTER_CANINTE_VALUE_RECEIVER
-        {
-            get
-            {
-                return control_register_caninte_value_receiver;
-            }
 
-            set
-            {
-                control_register_caninte_value_receiver = value;
-            }
-        }
-
-        public cONTROL_REGISTER_RXB0CTRL_VALUE_RECEIVER CONTROL_REGISTER_RXB0CTRL_VALUE_RECEIVER
-        {
-            get
-            {
-                return control_register_rxb0cntrl_value_receiver;
-            }
-
-            set
-            {
-                control_register_rxb0cntrl_value_receiver = value;
-            }
-        }
 
         public cONTROL_REGISTER_CANCTRL_VALUE CONTROL_REGISTER_CANCTRL_VALUE
         {
@@ -721,6 +681,19 @@ namespace CanTest
             set
             {
                 rEGISTER_TXB0Dx = value;
+            }
+        }
+
+        public byte[] REGISTER_RXB0Dx
+        {
+            get
+            {
+                return rEGISTER_RXB0Dx;
+            }
+
+            set
+            {
+                rEGISTER_RXB0Dx = value;
             }
         }
 

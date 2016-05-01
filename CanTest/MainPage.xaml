@@ -10,8 +10,6 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Button x:Name="button_sendMessage" Content="Send message" HorizontalAlignment="Left" Margin="10,44,0,0" VerticalAlignment="Top" Height="31" Width="125" Click="Button_Click_sendMessage"/>
         <Frame x:Name="indicator" Content="" HorizontalAlignment="Left" Margin="167,44,0,0" VerticalAlignment="Top" Height="31" Width="45" Background="Black"/>
-        <Button x:Name="button" Content="Set IF" HorizontalAlignment="Left" Margin="248,161,0,0" VerticalAlignment="Top" Click="button_Click"/>
-        <Button x:Name="button1" Content="Reset IF" HorizontalAlignment="Left" Margin="248,241,0,0" VerticalAlignment="Top" Click="button1_Click"/>
 
     </Grid>
 </Page>

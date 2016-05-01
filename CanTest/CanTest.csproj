@@ -98,11 +98,16 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DataSet_Mcp2515_Sender.cs" />
+    <Compile Include="Logic_Mcp2515_Receiver.cs" />
+    <Compile Include="Mcp2515.cs" />
     <Compile Include="DataSet_RaspberryPi.cs" />
+    <Compile Include="GlobalDataSet.cs" />
+    <Compile Include="Logic_Mcp2515_Sender.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Data_MCP2515_Receiver.cs" />
+    <Compile Include="Data_MCP2515_Sender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
