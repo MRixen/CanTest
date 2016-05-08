@@ -80,16 +80,14 @@ namespace CanTest
             while (mcp2515.CONTROL_REGISTER_CANSTAT_VALUE.CONFIGURATION_MODE != (mcp2515.CONTROL_REGISTER_CANSTAT_VALUE.CONFIGURATION_MODE & actualMode))
             {
                 actualMode = globalDataSet.mcp2515_execute_read_command(mcp2515.CONTROL_REGISTER_CANSTAT, globalDataSet.MCP2515_PIN_CS_RECEIVER);
-                Debug.Write("Actual mode for receiver " + actualMode + "\n");
             }
-            Debug.Write("Switch to mode for receiver " + actualMode.ToString() + " successfully" + "\n");
+            Debug.Write("Switch receiver to mode " + actualMode.ToString() + " successfully" + "\n");
         }
 
         public void mcp2515_switchMode(byte modeToCheck, byte modeToSwitch)
         {
 
             // Reset chip to get initial condition and wait for operation mode state bit
-            Debug.Write("Switch device receiver to normal operation mode" + "\n");
             byte[] spiMessage = new byte[] { mcp2515.CONTROL_REGISTER_CANCTRL, modeToSwitch };
             byte[] returnMessage = new byte[1];
 
@@ -102,7 +100,7 @@ namespace CanTest
             {
                 actualMode = globalDataSet.mcp2515_execute_read_command(mcp2515.CONTROL_REGISTER_CANSTAT, globalDataSet.MCP2515_PIN_CS_RECEIVER);
             }
-            Debug.Write("Switch to mode receiver " + actualMode.ToString() + " successfully" + "\n");
+            Debug.Write("Switch receiver to mode " + actualMode.ToString() + " successfully" + "\n");
         }
 
         private void mcp2515_configureMasksFilters()

@@ -82,16 +82,14 @@ namespace CanTest
             while (mcp2515.CONTROL_REGISTER_CANSTAT_VALUE.CONFIGURATION_MODE != (mcp2515.CONTROL_REGISTER_CANSTAT_VALUE.CONFIGURATION_MODE & actualMode))
             {
                 actualMode = globalDataSet.mcp2515_execute_read_command(mcp2515.CONTROL_REGISTER_CANSTAT, globalDataSet.MCP2515_PIN_CS_SENDER);
-                Debug.Write("Actual mode for sender " + actualMode + "\n");
             }
-            Debug.Write("Switch to mode for sender" + actualMode.ToString() + " successfully" + "\n");
+            Debug.Write("Switch sender to mode " + actualMode.ToString() + " successfully" + "\n");
         }
 
         public void mcp2515_switchMode(byte modeToCheck, byte modeToSwitch)
         {
 
             // Reset chip to get initial condition and wait for operation mode state bit
-            Debug.Write("Switch device sender to normal operation mode" + "\n");
             byte[] spiMessage = new byte[] { mcp2515.CONTROL_REGISTER_CANCTRL, modeToSwitch };
             byte[] returnMessage = new byte[1];
 
@@ -104,7 +102,7 @@ namespace CanTest
             {
                 actualMode = globalDataSet.mcp2515_execute_read_command(mcp2515.CONTROL_REGISTER_CANSTAT, globalDataSet.MCP2515_PIN_CS_SENDER);
             }
-            Debug.Write("Switch to mode sender " + actualMode.ToString() + " successfully" + "\n");
+            Debug.Write("Switch sender to mode " + actualMode.ToString() + " successfully" + "\n");
         }
 
         private void mcp2515_configureMasksFilters()
@@ -144,10 +142,10 @@ namespace CanTest
             globalDataSet.writeSimpleCommandSpi(spiMessage[0], globalDataSet.MCP2515_PIN_CS_SENDER);
         }
 
-        public void mcp2515_load_tx_buffer0(byte byteId)
+        public void mcp2515_load_tx_buffer0(byte byteId, byte data)
         {
             // Send message to mcp2515 tx buffer
-            Debug.Write("Load tx buffer 0 " + "at byte " + byteId.ToString() + "\n");
+            Debug.Write("Load tx buffer 0 at byte " + byteId.ToString() + "\n");
             byte[] spiMessage = new byte[2];
 
             // Set the message identifier to 10000000000 and extended identifier bit to 0
@@ -161,12 +159,12 @@ namespace CanTest
 
             // Set data length and set rtr bit to zero (no remote request)
             spiMessage[0] = mcp2515.REGISTER_TXB0DLC;
-            spiMessage[1] = mcp2515.REGISTER_TXB0DLC_VALUE.messageSize_X;
+            spiMessage[1] = mcp2515.MessageSizeAdxl;
             globalDataSet.mcp2515_execute_write_command(spiMessage, globalDataSet.MCP2515_PIN_CS_SENDER);
 
             // Set data to tx buffer 0
             spiMessage[0] = byteId;
-            spiMessage[1] = 0x0D;
+            spiMessage[1] = data;
             globalDataSet.mcp2515_execute_write_command(spiMessage, globalDataSet.MCP2515_PIN_CS_SENDER);
 
             // Send message

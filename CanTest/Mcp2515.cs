@@ -71,9 +71,9 @@ namespace CanTest
         private cONTROL_REGISTER_CANINTF_VALUE control_register_canintf_value;
         private rEGISTER_TXB0SIDL_VALUE register_txb0sidl_value;
         private rEGISTER_TXB0SIDH_VALUE register_txb0sidh_value;
-        private rEGISTER_TXB0DLC_VALUE register_txb0dlc_value;
         private byte[] rEGISTER_TXB0Dx = new byte[8];
         private byte[] rEGISTER_RXB0Dx = new byte[8];
+        private byte messageSizeAdxl;
 
         public struct cONTROL_REGISTER_CANSTAT_VALUE
         {
@@ -96,13 +96,6 @@ namespace CanTest
             public byte identifier_X;
             public byte identifier_Y;
             public byte identifier_Z;
-        }
-
-        public struct rEGISTER_TXB0DLC_VALUE
-        {
-            public byte messageSize_X;
-            public byte messageSize_Y;
-            public byte messageSize_Z;
         }
 
         public struct cONTROL_REGISTER_CANCTRL_VALUE
@@ -184,9 +177,7 @@ namespace CanTest
             register_txb0sidh_value.identifier_Z = 0x03;
 
             // Set values for message size
-            register_txb0dlc_value.messageSize_X = 0x01;
-            register_txb0dlc_value.messageSize_Y = 0x01;
-            register_txb0dlc_value.messageSize_Z = 0x01;
+            MessageSizeAdxl = 0x06;
 
             // Set addresss for tx buffer 0
             rEGISTER_TXB0Dx[0] = rEGISTER_TXB0D0;
@@ -619,19 +610,6 @@ namespace CanTest
             }
         }
 
-        public rEGISTER_TXB0DLC_VALUE REGISTER_TXB0DLC_VALUE
-        {
-            get
-            {
-                return register_txb0dlc_value;
-            }
-
-            set
-            {
-                register_txb0dlc_value = value;
-            }
-        }
-
         public byte SPI_INSTRUCTION_RTS_BUFFER0
         {
             get
@@ -759,6 +737,19 @@ namespace CanTest
             set
             {
                 control_register_canintf_value = value;
+            }
+        }
+
+        public byte MessageSizeAdxl
+        {
+            get
+            {
+                return messageSizeAdxl;
+            }
+
+            set
+            {
+                messageSizeAdxl = value;
             }
         }
     }
