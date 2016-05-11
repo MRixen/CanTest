@@ -113,7 +113,8 @@ namespace CanTest
             globalDataSet.mcp2515_execute_write_command(spiMessage, globalDataSet.MCP2515_PIN_CS_SENDER);
         }
 
-        private void mcp2515_configureInterrupts()
+        private void 
+            mcp2515_configureInterrupts()
         {
             Debug.Write("Configure interrupts for sender" + "\n");
             byte[] spiMessage = new byte[] { mcp2515.CONTROL_REGISTER_CANINTE, data_MCP2515_Sender.CONTROL_REGISTER_CANINTE_VALUE_SENDER.INTE };

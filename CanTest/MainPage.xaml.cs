@@ -286,13 +286,13 @@ namespace CanTest
             globalDataSet.CS_PIN_SENSOR_ADXL1.Write(GpioPinValue.High);
 
             // Write sensor data to tx buffer
-            globalDataSet.MCP2515_PIN_CS_SENDER.Write(GpioPinValue.Low);
+            // globalDataSet.MCP2515_PIN_CS_SENDER.Write(GpioPinValue.Low);
             for (int i = 0; i < mcp2515.MessageSizeAdxl; i++)
             {
                 globalDataSet.LOGIC_MCP2515_SENDER.mcp2515_load_tx_buffer0(mcp2515.REGISTER_TXB0Dx[i], ReadBuf[i]);
                 Debug.Write("Write sensor data: " + ReadBuf[i].ToString() + " in buffer 0 at byte " + mcp2515.REGISTER_TXB0Dx[i].ToString() + "\n");
             }
-            globalDataSet.MCP2515_PIN_CS_SENDER.Write(GpioPinValue.High);
+            // globalDataSet.MCP2515_PIN_CS_SENDER.Write(GpioPinValue.High);
         }
     }
 }
