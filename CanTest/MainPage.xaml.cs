@@ -30,12 +30,15 @@ namespace CanTest
     public sealed partial class MainPage : Page
     {
         private MCP2515 mcp2515;
-        private Timer periodicTimer;
+        private Timer periodicTimer, mcpExecutorService;
         private const byte SPI_CHIP_SELECT_LINE = 0;
         private byte[] address_TXB0Dm = new byte[8]; // Transmit register 0/2 (3 at all) and byte 0/7 (8 at all)
-        private int DELTA_T = 500;
+        private int DELTA_T = 500, DELTA_T_MCP_EXECUTOR = 1;
         private byte MAX_TX_BUFFER_SIZE = 8;
         private int counter;
+        private byte mcpExecutorSelector = 0x01;
+        // TODO Change size
+        private const byte MAX_MCP_EXECUTOR_SELECTOR = 0x01; 
 
         // DATA FOR ADXL SENSOR
         private const byte ACCEL_REG_X = 0x32;              /* Address of the X Axis data register                  */
@@ -54,6 +57,7 @@ namespace CanTest
 
 
         private GlobalDataSet globalDataSet;
+        private bool execute_mcpExecutor = false;
 
         public MainPage()
         {
@@ -74,6 +78,7 @@ namespace CanTest
             task_mcp2515.Start();
             task_mcp2515.Wait();
                    
+            mcpExecutorService = new Timer(this.McpExecutorService, null, 0, DELTA_T_MCP_EXECUTOR); // Create timer to display the state of message transmission
             periodicTimer = new Timer(this.TimerCallback, null, 0, DELTA_T); // Create timer to display the state of message transmission
         }
 
@@ -96,6 +101,7 @@ namespace CanTest
                 globalDataSet.MCP2515_PIN_CS_RECEIVER = configureGpio(gpioController, (int)RASPBERRYPI.GPIO.GPIO_12, GpioPinValue.High, GpioPinDriveMode.Output);
                 globalDataSet.MCP2515_PIN_INTE_RECEIVER = configureGpio(gpioController, (int)RASPBERRYPI.GPIO.GPIO_13, GpioPinDriveMode.Input);
                 globalDataSet.CS_PIN_SENSOR_ADXL1 = configureGpio(gpioController, (int)RASPBERRYPI.GPIO.GPIO_16, GpioPinValue.High, GpioPinDriveMode.Output);
+                globalDataSet.ARDUINO_TEST_PIN = configureGpio(gpioController, (int)RASPBERRYPI.GPIO.GPIO_26, GpioPinValue.Low, GpioPinDriveMode.Output);
 
         }
         catch (FileLoadException ex)
@@ -201,38 +207,66 @@ namespace CanTest
             });
         }
 
-        private void Button_Click_sendMessage(object sender, RoutedEventArgs e)
+        private void McpExecutorService(object state)
         {
-            if (counter >= MAX_TX_BUFFER_SIZE)
+            // Choose the specific mcp executor by setting the id that is mapped to the message identifier, 
+            // identifier:  00000000 00000001
+            // id:          1
+            // identifier:  00000000 00000002
+            // id:          2
+            // etc.
+
+            // TEST
+            if (execute_mcpExecutor)
             {
-                button_sendMessage.IsEnabled = false;
+                // TEST
+                execute_mcpExecutor = false;
+
+                if (mcpExecutorSelector > MAX_MCP_EXECUTOR_SELECTOR)
+                {
+                    mcpExecutorSelector = 0x01;
+                }
+                Debug.Write("Send identifier to mcp executor...");
+                byte identifier = mcpExecutorSelector;
+
+                // Configure tx buffer (msg length, identifier, etc.)
+                globalDataSet.LOGIC_MCP2515_RECEIVER.mcp2515_init_tx_buffer0(0x02, new byte[] { identifier, 0x00 });
+                for (int i = 0; i < 2; i++)
+                {               
+                    globalDataSet.LOGIC_MCP2515_RECEIVER.mcp2515_load_tx_buffer0(mcp2515.REGISTER_TXB0Dx[i], identifier);
+                    identifier = 0x00;
+                }
+
+                // TODO: Filter the message to receive only senssor value from current selected device
+
+                Debug.Write("Wait for data from mcp executor...");
+                while (globalDataSet.MCP2515_PIN_INTE_RECEIVER.Read() == GpioPinValue.Low)
+                {
+                }
+                ReadAccel();
+
+                // Increase mcp executor selector to next device
+                mcpExecutorSelector++;
             }
-
-            globalDataSet.LOGIC_MCP2515_SENDER.mcp2515_load_tx_buffer0(mcp2515.REGISTER_TXB0Dx[counter-1], 0x0D);
-         
-            byte returnMessage = globalDataSet.LOGIC_MCP2515_RECEIVER.mcp2515_read_rx_buffer0(mcp2515.REGISTER_RXB0Dx[counter - 1]);
-            Debug.Write("Read from buffer 0 at byte " + mcp2515.REGISTER_RXB0Dx[counter - 1].ToString() + ": " + returnMessage.ToString() + "\n");
-
-            counter++;
         }
 
-        private void button_Click_readSensorData(object sender, RoutedEventArgs e)
+        private void Button_Click_execute_mcpExecutor(object sender, RoutedEventArgs e)
         {
-            button_readSensorData.IsEnabled = false;
-            button_writeSensorData.IsEnabled = true;
-            ReadAccel();
+            execute_mcpExecutor = true;
         }
 
-        private void button_Click_writeSensorData(object sender, RoutedEventArgs e)
+        private void button_Click_test_arduino_mcp2515(object sender, RoutedEventArgs e)
         {
-            button_readSensorData.IsEnabled = true;
-            button_writeSensorData.IsEnabled = false;
-            WriteAccel();
+            globalDataSet.ARDUINO_TEST_PIN.Write(GpioPinValue.High);
+        }
+        private void button_Click_test_arduino_mcp2515_reset(object sender, RoutedEventArgs e)
+        {
+            globalDataSet.ARDUINO_TEST_PIN.Write(GpioPinValue.Low);
         }
 
         private void ReadAccel()
         {
-            byte[] returnMessage = new byte[mcp2515.MessageSizeAdxl+1];
+            byte[] returnMessage = new byte[mcp2515.MessageSizeAdxl];
             const int ACCEL_RES = 1024;         /* The ADXL345 has 10 bit resolution giving 1024 unique values                     */
             const int ACCEL_DYN_RANGE_G = 8;    /* The ADXL345 had a total dynamic range of 8G, since we're configuring it to +-4G */
             const int UNITS_PER_G = ACCEL_RES / ACCEL_DYN_RANGE_G;  /* Ratio of raw int values to G units                          */
@@ -244,16 +278,6 @@ namespace CanTest
                 Debug.Write("Read sensor data: " + returnMessage[i].ToString() + " from buffer 0 at byte" + mcp2515.REGISTER_RXB0Dx[i].ToString() + "\n");
             }
             globalDataSet.MCP2515_PIN_CS_RECEIVER.Write(GpioPinValue.High);
-
-            Array.Copy(returnMessage, 1, returnMessage, 0, 6);
-
-            /* Check the endianness of the system and flip the bytes if necessary */
-            if (!BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(returnMessage, 0, 2);
-                Array.Reverse(returnMessage, 2, 2);
-                Array.Reverse(returnMessage, 4, 2);
-            }
 
             /* In order to get the raw 16-bit data values, we need to concatenate two 8-bit bytes for each axis */
             short AccelerationRawX = BitConverter.ToInt16(returnMessage, 0);

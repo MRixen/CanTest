@@ -134,5 +134,60 @@ namespace CanTest
             return returnMessage[0];
         }
 
+        public void mcp2515_load_tx_buffer0(byte byteId, byte data)
+        {
+            // Send message to mcp2515 tx buffer
+            Debug.Write("Load tx buffer 0 at byte " + byteId.ToString() + "\n");
+            byte[] spiMessage = new byte[2];
+
+            // Set data to tx buffer 0
+            spiMessage[0] = byteId;
+            spiMessage[1] = data;
+            globalDataSet.mcp2515_execute_write_command(spiMessage, globalDataSet.MCP2515_PIN_CS_RECEIVER);
+
+            // Send message
+            mcp2515_execute_rts_command(0);
+        }
+
+        public void mcp2515_init_tx_buffer0(byte messageLength, byte[] identifier)
+        {
+            byte[] spiMessage = new byte[2];
+
+            // Set the message identifier to identifier[0] (low) and identifier[1] (high) and extended identifier to 0
+            spiMessage[0] = mcp2515.REGISTER_TXB0SIDL;
+            spiMessage[1] = identifier[0];
+            globalDataSet.mcp2515_execute_write_command(spiMessage, globalDataSet.MCP2515_PIN_CS_RECEIVER);
+
+            spiMessage[0] = mcp2515.REGISTER_TXB0SIDH;
+            spiMessage[1] = identifier[1];
+            globalDataSet.mcp2515_execute_write_command(spiMessage, globalDataSet.MCP2515_PIN_CS_RECEIVER);
+
+            // Set data length and set rtr bit to zero (no remote request)
+            spiMessage[0] = mcp2515.REGISTER_TXB0DLC;
+            spiMessage[1] = messageLength;
+            globalDataSet.mcp2515_execute_write_command(spiMessage, globalDataSet.MCP2515_PIN_CS_RECEIVER);
+        }
+
+        public void mcp2515_execute_rts_command(int bufferId)
+        {
+            byte[] spiMessage = new byte[1];
+            switch (bufferId)
+            {
+                case 0:
+                    spiMessage[0] = mcp2515.SPI_INSTRUCTION_RTS_BUFFER0;
+                    break;
+                case 1:
+                    spiMessage[0] = mcp2515.SPI_INSTRUCTION_RTS_BUFFER1;
+                    break;
+                case 2:
+                    spiMessage[0] = mcp2515.SPI_INSTRUCTION_RTS_BUFFER2;
+                    break;
+                default:
+                    break;
+            }
+
+            globalDataSet.writeSimpleCommandSpi(spiMessage[0], globalDataSet.MCP2515_PIN_CS_RECEIVER);
+        }
+
     }
 }

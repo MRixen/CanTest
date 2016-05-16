@@ -14,7 +14,7 @@ namespace CanTest
         private bool spi_not_initialized = true;
         private GpioPin mCP2515_PIN_CS_SENDER, mCP2515_PIN_INTE_SENDER;
         private GpioPin mCP2515_PIN_CS_RECEIVER, mCP2515_PIN_INTE_RECEIVER;
-        private GpioPin CS_PIN_SENSOR_ADXL;
+        private GpioPin CS_PIN_SENSOR_ADXL, sTART_PIN_OUT, aRDUINO_TEST_PIN;
         private MCP2515 mcp2515;
         private SpiDevice spiDevice;
         private Logic_Mcp2515_Sender logic_Mcp2515_Sender;
@@ -34,9 +34,9 @@ namespace CanTest
 
         private void init_mcp2515()
         {
-            logic_Mcp2515_Sender.init_mcp2515_sender();
+            //logic_Mcp2515_Sender.init_mcp2515_sender();
             logic_Mcp2515_Receiver.init_mcp2515_receiver();
-            init_adxl_sensor();
+            //init_adxl_sensor();
         }
 
         // FOR TESTING ONLY - AFTER FINISH TESTS REMOVE THIS
@@ -175,6 +175,32 @@ namespace CanTest
             set
             {
                 CS_PIN_SENSOR_ADXL = value;
+            }
+        }
+
+        public GpioPin START_PIN_OUT
+        {
+            get
+            {
+                return sTART_PIN_OUT;
+            }
+
+            set
+            {
+                sTART_PIN_OUT = value;
+            }
+        }
+
+        public GpioPin ARDUINO_TEST_PIN
+        {
+            get
+            {
+                return aRDUINO_TEST_PIN;
+            }
+
+            set
+            {
+                aRDUINO_TEST_PIN = value;
             }
         }
 

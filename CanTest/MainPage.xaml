@@ -8,10 +8,10 @@
     mc:Ignorable="d">
 
     <Grid Background="#FF464646">
-        <Button x:Name="button_sendMessage" Content="Send message" HorizontalAlignment="Left" Margin="10,44,0,0" VerticalAlignment="Top" Height="31" Width="125" Click="Button_Click_sendMessage" Background="#33FFFFFF" IsEnabled="False"/>
+        <Button x:Name="button_execute_mcp" Content="Execute mcp" HorizontalAlignment="Left" Margin="10,44,0,0" VerticalAlignment="Top" Height="31" Width="125" Click="Button_Click_execute_mcpExecutor" Background="#33FFFFFF"/>
         <Frame x:Name="indicator" Content="" HorizontalAlignment="Left" Margin="167,44,0,0" VerticalAlignment="Top" Height="31" Width="45" Background="Black"/>
-        <Button x:Name="button_readSensorData" Content="Read adxl s receiver" HorizontalAlignment="Left" Margin="6,196,0,0" VerticalAlignment="Top" Background="#33FFFFFF" Click="button_Click_readSensorData"/>
-        <Button x:Name="button_writeSensorData" Content="Write adxl as sender" HorizontalAlignment="Left" Margin="6,128,0,0" VerticalAlignment="Top" Background="#33FFFFFF" Click="button_Click_writeSensorData"/>
+        <Button x:Name="button" Content="Test arduino mcp2515" HorizontalAlignment="Left" Margin="40,119,0,0" VerticalAlignment="Top" Click="button_Click_test_arduino_mcp2515"/>
+        <Button x:Name="button_Copy" Content="Reset test arduino mcp2515" HorizontalAlignment="Left" Margin="40,189,0,0" VerticalAlignment="Top" Click="button_Click_test_arduino_mcp2515_reset"/>
 
     </Grid>
 </Page>
